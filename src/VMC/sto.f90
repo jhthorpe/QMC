@@ -18,6 +18,7 @@
 !-------------------------------------------------------
 module sto_mod
   use constants
+  use BUF
 
 !-------------------------------------------------------
 ! sto_dat
@@ -35,6 +36,12 @@ type sto_dat
   real(kind=8), allocatable :: prm(:,:)
   integer, allocatable :: ibgn(:),ilen(:) 
   integer, allocatable :: n(:),l(:),ml(:)
+  integer, allocatable :: itype(:)
+  character(len=10) :: type_str(5) = ['1S        ',&
+                                      '2S        ',&
+                                      '2Px       ',&
+                                      '2Py       ',&
+                                      '2Pz       ']
   integer :: Nsto,Nprm
 end type sto_dat
 !-------------------------------------------------------
@@ -56,6 +63,7 @@ subroutine sto_init(N,NP,sto)
   allocate(sto%n(1:N))
   allocate(sto%l(1:N))
   allocate(sto%ml(1:N))
+  allocate(sto%itype(1:N))
   sto%Nsto = N
   sto%Nprm = NP
 end subroutine sto_init
@@ -68,6 +76,7 @@ end subroutine sto_init
 subroutine sto_free(sto)
   implicit none
   type(sto_dat), intent(inout) :: sto
+  if (allocated(sto%itype)) deallocate(sto%itype)
   if (allocated(sto%ml)) deallocate(sto%ml)
   if (allocated(sto%l)) deallocate(sto%l)
   if (allocated(sto%n)) deallocate(sto%n)
@@ -95,10 +104,9 @@ subroutine sto_print(sto)
   write(*,98) "Number of STO        :",sto%Nsto
   write(*,98) "Number of Parameters :",sto%Nprm
 
-  !Type 1 integrals...
-  write(*,99) '1S orbitals' 
-  do f=sto%ibgn(1),sto%ibgn(1)+sto%ilen(1)-1
+  do f=1,sto%Nsto
     write(*,98) "Orbital #",f
+    write(*,98) "Orbital type",sto%itype(f)
     write(*,97) "Orbital Center @ ",sto%xyz(1,f),&
                                     sto%xyz(2,f),&
                                     sto%xyz(3,f)
@@ -107,12 +115,94 @@ subroutine sto_print(sto)
       write(*,'(1x,F10.7)',advance='no') sto%prm(i,f) 
     end do  
     write(*,'(1x,F10.7)') sto%prm(i,f) 
-      
+    
   end do
+
   write(*,*) 
   
 end subroutine sto_print
+
 !-------------------------------------------------------
+! sto_sort
+!	- sorts the sto data in order of the 
+!	  orbital types
+!
+!	- this is terrible code, but whatever
+!
+!	- employs bubble sort, because we are probably 
+!
+!-------------------------------------------------------
+subroutine sto_sort(sto,ICORE,DCORE)
+  implicit none
+  type(sto_dat), intent(inout) :: sto
+  type(IBUF), intent(inout) :: ICORE
+  type(DBUF), intent(inout) :: DCORE
+
+
+  type(sto_dat) :: sto_tmp
+  integer :: i,f,t,idx
+  integer :: i0,ii
+
+  write(*,*) "SORTING STO INTEGRAL LIST"
+  call IBUF_RESERVE(i0,sto%Nsto,ICORE)
+
+
+  !Go through each mode and classify it's type
+  do f=1,sto%Nsto
+
+    !1S
+    if (sto%n(f) .eq. 1) then
+      sto%itype(f) = 1
+    !2S
+    else if (sto%n(f) .eq. 2 .and. sto%l(f) .eq. 0) then
+      sto%itype(f) = 2
+    !2Px
+    else if (sto%n(f) .eq. 2 .and. sto%l(f) .eq. 1 .and. sto%ml(f) .eq. -1) then
+      sto%itype(f) = 3
+    !2Py
+    else if (sto%n(f) .eq. 2 .and. sto%l(f) .eq. 1 .and. sto%ml(f) .eq. 0) then
+      sto%itype(f) = 4
+    !2Pz
+    else if (sto%n(f) .eq. 2 .and. sto%l(f) .eq. 1 .and. sto%ml(f) .eq. 1) then
+      sto%itype(f) = 5
+
+    else
+      write(*,*) "ERROR -- the following type of STO is not supported"
+      write(*,*) "N =",sto%n(f),"L=",sto%l(f),"mL=",sto%ml(f)
+      STOP
+    end if
+
+  end do 
+ 
+  sto_tmp = sto
+
+  !Sort by finding all the elements in the STO list 
+  !  that have the correct type
+  idx = i0
+  do t=1,5 !up to 2Sz
+    do f=1,sto%Nsto
+      if (sto_tmp%itype(f) .eq. t) then
+        ICORE%buf(idx) = f
+        idx = idx + 1 
+      end if
+    end do  
+  end do 
+  
+  !Copy data back from sto_tmp
+  do f=1,sto%Nsto
+    ii = ICORE%buf(i0+f-1)
+    sto%xyz(1:3,f)        = sto_tmp%xyz(1:3,ii)
+    sto%prm(1:sto%Nprm,f) = sto_tmp%prm(1:sto%Nprm,ii)
+    sto%n(f) = sto_tmp%n(ii)
+    sto%l(f) = sto_tmp%l(ii)
+    sto%ml(f) = sto_tmp%ml(ii)
+    sto%itype(f) = sto_tmp%itype(ii)
+  end do
+
+  
+  call IBUF_POP(sto%Nsto,ICORE)
+
+end subroutine sto_sort
 
 !-------------------------------------------------------
 ! sto_sphr_eval_all

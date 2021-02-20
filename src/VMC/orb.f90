@@ -83,6 +83,8 @@ subroutine orb_init(orb,sto,ICORE,DCORE)
   close(unit=fid)
 
   !sort the lists 
+  call sto_sort(sto,ICORE,DCORE)
+  call sto_print(sto)
 
 end subroutine orb_init
 !-------------------------------------------------------

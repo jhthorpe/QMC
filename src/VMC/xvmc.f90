@@ -15,9 +15,6 @@ program xvmc
 
   !Read in the orbitals 
   call orb_init(orb,sto,ICORE,DCORE)
-  sto%ibgn = 1
-  sto%ilen = 1
-  call sto_print(sto)
   
   call sto_free(sto)
 end program xvmc

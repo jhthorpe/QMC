@@ -126,7 +126,7 @@ subroutine DBUF_POP(N,DCORE)
   integer :: M
   M = min(N,DCORE%nelm - DCORE%nfree)
   DCORE%nfree = DCORE%nfree + M
-  DCORE%next = DCORE%next - M + 1
+  DCORE%next = DCORE%next - M 
 end subroutine DBUF_POP
 
 !-------------------------------------------------------
@@ -141,6 +141,31 @@ subroutine IBUF_POP(N,ICORE)
   integer :: M
   M = min(N,ICORE%nelm - ICORE%nfree)
   ICORE%nfree = ICORE%nfree + M
-  ICORE%next = ICORE%next - M + 1
+  ICORE%next = ICORE%next - M 
 end subroutine IBUF_POP
+
+!-------------------------------------------------------
+! DBUF_PRINT
+!	- prints information about DBUF
+!-------------------------------------------------------
+subroutine DBUF_PRINT(DCORE)
+  implicit none
+  type(DBUF), intent(inout) :: DCORE
+  write(*,*) "DBUF : nelm"   ,DCORE%nelm
+  write(*,*) "DBUF : nfree"  ,DCORE%nfree
+  write(*,*) "DBUF : next"   ,DCORE%next
+end subroutine DBUF_PRINT
+
+!-------------------------------------------------------
+! IBUF_PRINT
+!	- prints information about DBUF
+!-------------------------------------------------------
+subroutine IBUF_PRINT(ICORE)
+  implicit none
+  type(IBUF), intent(inout) :: ICORE
+  write(*,*) "IBUF : nelm"   ,ICORE%nelm
+  write(*,*) "IBUF : nfree"  ,ICORE%nfree
+  write(*,*) "IBUF : next"   ,ICORE%next
+end subroutine IBUF_PRINT
+
 end module buf
