@@ -1,0 +1,20 @@
+From the ground up...
+
+!Basics
+1. Evaluation of STO orbtials (STO,GTO,...)         : DONE
+1a. Read in orbitals                                :
+1a. Evaluation of all orbitals
+1c. Sorting of orbitals into lists
+2. Construction of initial determinants via LC"A"O
+3. Construction of det inverse 
+3. Construction of Jastrow factor
+4. Single reference SJ psi
+
+!Little bit fancy
+1. Update of R
+2. Ratio of det (q)
+3. Ratio of single SJ psi
+4. kinetic energy integrals of single bf
+5. kinetic energy integrals of single det
+
+ 
