@@ -2,9 +2,9 @@ From the ground up...
 
 !Basics
 1. Evaluation of STO orbtials (STO,GTO,...)         : DONE
-1a. Read in orbitals                                :
-1a. Evaluation of all orbitals
-1c. Sorting of orbitals into lists
+1a. Read in orbitals                                : DONE
+1a. Evaluation of all orbitals           
+1c. Sorting of orbitals into lists                  : DONE
 2. Construction of initial determinants via LC"A"O
 3. Construction of det inverse 
 3. Construction of Jastrow factor

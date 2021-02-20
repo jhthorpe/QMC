@@ -42,7 +42,7 @@ type sto_dat
                                       '2Px       ',&
                                       '2Py       ',&
                                       '2Pz       ']
-  integer :: Nsto,Nprm
+  integer :: Nsto,Nprm,Ntype
 end type sto_dat
 !-------------------------------------------------------
 
@@ -56,10 +56,11 @@ subroutine sto_init(N,NP,sto)
   implicit none
   integer, intent(in) :: N,NP
   type(sto_dat), intent(inout) :: sto
+  sto%Ntype = 5
   allocate(sto%xyz(1:3,1:N))  
   allocate(sto%prm(1:NP,1:N))
-  allocate(sto%ibgn(1:N))
-  allocate(sto%ilen(1:N))
+  allocate(sto%ibgn(1:sto%Ntype)) 
+  allocate(sto%ilen(1:sto%Ntype))
   allocate(sto%n(1:N))
   allocate(sto%l(1:N))
   allocate(sto%ml(1:N))
@@ -146,7 +147,6 @@ subroutine sto_sort(sto,ICORE,DCORE)
   write(*,*) "SORTING STO INTEGRAL LIST"
   call IBUF_RESERVE(i0,sto%Nsto,ICORE)
 
-
   !Go through each mode and classify it's type
   do f=1,sto%Nsto
 
@@ -179,7 +179,7 @@ subroutine sto_sort(sto,ICORE,DCORE)
   !Sort by finding all the elements in the STO list 
   !  that have the correct type
   idx = i0
-  do t=1,5 !up to 2Sz
+  do t=1,sto%Ntype 
     do f=1,sto%Nsto
       if (sto_tmp%itype(f) .eq. t) then
         ICORE%buf(idx) = f
@@ -199,7 +199,26 @@ subroutine sto_sort(sto,ICORE,DCORE)
     sto%itype(f) = sto_tmp%itype(ii)
   end do
 
-  
+  !Generate the ibgn and ilen lists
+  sto%ibgn = sto%Nsto
+  sto%ilen = 0
+
+  idx = sto%itype(1)
+  sto%ibgn(idx) = 1
+  sto%ilen(idx) = 1
+  do f=2,sto%Nsto
+    !we have found the beggining of the next
+    !this is the same type, add
+    if (sto%itype(f) .eq. idx) then
+      sto%ilen(idx) = sto%ilen(idx) + 1
+    !we have a new type 
+    else
+      idx = sto%itype(f) 
+      sto%ibgn(idx) = f 
+      sto%ilen(idx) = 1
+    end if
+  end do
+
   call IBUF_POP(sto%Nsto,ICORE)
 
 end subroutine sto_sort
