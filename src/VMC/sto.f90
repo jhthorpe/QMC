@@ -130,8 +130,6 @@ end subroutine sto_print
 !
 !	- this is terrible code, but whatever
 !
-!	- employs bubble sort, because we are probably 
-!
 !-------------------------------------------------------
 subroutine sto_sort(sto,ICORE,DCORE)
   implicit none
@@ -188,7 +186,7 @@ subroutine sto_sort(sto,ICORE,DCORE)
     end do  
   end do 
   
-  !Copy data back from sto_tmp
+  !Copy data back from sto_tmp, in the correct order
   do f=1,sto%Nsto
     ii = ICORE%buf(i0+f-1)
     sto%xyz(1:3,f)        = sto_tmp%xyz(1:3,ii)

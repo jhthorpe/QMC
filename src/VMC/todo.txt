@@ -3,14 +3,24 @@ From the ground up...
 !Basics
 1. Evaluation of STO orbtials (STO,GTO,...)         : DONE
 1a. Read in orbitals                                : DONE
-1a. Evaluation of all orbitals           
+1a. Evaluation of all orbitals                      : DONE 
 1c. Sorting of orbitals into lists                  : DONE
-2. Construction of initial determinants via LC"A"O
-3. Construction of det inverse 
-3. Construction of Jastrow factor
-4. Single reference SJ psi
+2a. Initial positions of atoms/electrons
+2b. Initial R,Theta,Phi
 
-!Little bit fancy
+!Wavefunction
+2. Construction of initial determinant via LC"A"O   : 
+3. Construction of det,inverse                      :  
+3. Construction of Jastrow factor                   :
+4. Single reference SJ psi                          :
+
+!Energy
+1. kinetic energy for each function
+2. kinetic energy for whole SJ
+3. potential energy
+1. Inital evaluation of kinetic energy
+
+!Per iteration
 1. Update of R
 2. Ratio of det (q)
 3. Ratio of single SJ psi
